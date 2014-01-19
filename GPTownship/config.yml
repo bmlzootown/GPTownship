@@ -1,0 +1,4 @@
+SignShort: TS
+SignLong: Township
+#Change this number to change the (server)time at which rent is collected (24 hour notation, Example: 10:00 PM = 22)
+RentCollecthour: 18

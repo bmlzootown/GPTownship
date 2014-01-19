@@ -1,0 +1,42 @@
+name: GPTownship
+main: com.OmniTekMC.GPTownship.Township
+version: 0.1
+author: Leonardi 
+depend: [GriefPrevention, Vault]
+
+permissions:
+  GPTownship.*:
+    description: Gives access to all Township functions.
+    default: op
+    children:
+      GPTownship.sell: true
+      GPTownship.buy: true
+      GPTownship.Adminclaim: true
+      GPTownship.collect: true
+  GPTownship.sell:
+    description: Allows player to sell claims and subclaims.
+    default: true
+  GPTownship.buy:
+    description: Allows player to buy claims and lease subclaims.
+    default: true
+  GPTownship.Adminclaim:
+    description: Allows players to sell admin claims
+    default: false
+  GPTownship.collect:
+    description: Allows players to collect daily Upkeep manually (In case scheduled event didn't go through)
+    default: false
+  GPTownship.leave:
+    description: Allows player to end contract on the claim he is currently standing in.
+    default: true
+
+commands:
+   townshipcollect:
+      description: Collect the Upkeep manually
+      usage: /townshipcollect
+      permission: GPTownship.collect
+      permission-message: You don't have permission to do this.
+   townshipleave:
+      description: End the contract for the claim you are currently standing in
+      usage: /townshipleave
+      permission: GPTownship.leave
+      permission-message: You don't have permission to do this.
