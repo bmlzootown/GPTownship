@@ -35,6 +35,7 @@ public class Township extends JavaPlugin
   
   public void onEnable()
   {
+	this.saveDefaultConfig();
     this.log = getLogger();
     new TownshipListener(this);
     new TownshipListener(this).registerEvents();
@@ -60,8 +61,7 @@ public class Township extends JavaPlugin
       }
       rentSchedule();
     }
-
-    saveDefaultConfig();
+    
     this.signName = ("[" + getConfig().getString("SignShort") + "]");
     this.signNameLong = ("[" + getConfig().getString("SignLong") + "]");
     this.log.info("Township Signs have been set to use " + this.signName + " or " + this.signNameLong);
@@ -121,7 +121,7 @@ public class Township extends JavaPlugin
 						return true;
 					} else {
 			            player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-			            player.sendMessage(ChatColor.AQUA + "You are not currently renting the land you are standing in");
+			            player.sendMessage(ChatColor.RED + "You are not currently renting the land you are standing in");
 						return true;
 					}
 				} 
