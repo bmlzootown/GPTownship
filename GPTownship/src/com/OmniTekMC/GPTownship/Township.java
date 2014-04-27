@@ -3,6 +3,7 @@ package com.OmniTekMC.GPTownship;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,6 +17,8 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +31,8 @@ public class Township extends JavaPlugin
   public static Permission perms = null;
   public String signName;
   public String signNameLong;
+  private FileConfiguration townshipConfig = null;
+  private File townshipConfigFile = null;
   
   static DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
   //get current date time with Date()
@@ -39,7 +44,15 @@ public class Township extends JavaPlugin
     this.log = getLogger();
     new TownshipListener(this);
     new TownshipListener(this).registerEvents();
-
+    
+    try {
+        Metrics metrics = new Metrics(this);
+        metrics.start();
+    } catch (IOException e) {
+        // Failed to submit the stats :-(
+    	this.log.info("Failed to submit stats to MCStats");
+    }
+    
     if (checkVault())
     {
       this.log.info("Vault detected and enabled.");
@@ -100,14 +113,14 @@ public class Township extends JavaPlugin
 				Player player = (Player) sender;
 				if(player.hasPermission("GPTownship.collect")){
 					UpkeepManager.getInstance().subtractFunds();
-					logtoFile(" Daily rent has been collected");
-					this.log.info("Daily rent has been collected");
-					logtoFile((String)dateFormat.format(date));
+					this.log.info("Rent has been collected.");
+					player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
+		            player.sendMessage(ChatColor.RED + "Rent has been collected!");
 					return true;
 				} 
 			} else {
 				UpkeepManager.getInstance().subtractFunds();
-				logtoFile(" Daily rent has been collected");
+				this.log.info("Rent has been collected");
 				return true;
 			}
 		}
@@ -117,16 +130,41 @@ public class Township extends JavaPlugin
 				if(player.hasPermission("GPTownship.leave")){
 					if(TownshipListener.getInstance().checkManager(this, player.getLocation(), player.getName()) == true){
 						player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-						player.sendMessage(ChatColor.AQUA + "You have succefully ended your contract for the claim you are standing in");
+						player.sendMessage(ChatColor.AQUA + "You have succefully ended your contract for the claim you are standing in!");
 						return true;
 					} else {
 			            player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-			            player.sendMessage(ChatColor.RED + "You are not currently renting the land you are standing in");
+			            player.sendMessage(ChatColor.RED + "You are not currently renting the land you are standing in!");
 						return true;
 					}
 				} 
 			} else {
 				return false;
+			}
+		}
+		// FIX THIS
+		if(cmd.getName().equalsIgnoreCase("townshipreload")){
+			if(sender instanceof Player){
+				Player player = (Player) sender;
+				if(player.hasPermission("GPTownship.reload")){
+					if (townshipConfigFile == null) {
+					    townshipConfigFile = new File(getDataFolder(), "config.yml");
+					}
+					townshipConfig = YamlConfiguration.loadConfiguration(townshipConfigFile);
+					
+					// Look for defaults in the jar
+				    InputStream defConfigStream = this.getResource("config.yml");
+				    if (defConfigStream != null) {
+				        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+				        townshipConfig.setDefaults(defConfig);
+				    }
+				    player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
+		            player.sendMessage(ChatColor.RED + "You have successfully reloaded the config!");
+				    return true;		
+					
+				} else {
+					return false;
+				}
 			}
 		}
 		return false;

@@ -69,24 +69,29 @@ public class TownshipListener implements Listener {
 		Claim claim = gp.dataStore.getClaimAt(location, false, null);
 		Set allClaims = upkeepConfig.getConfigurationSection((String) player + ".Claims").getKeys(false);
 		Iterator claimsItr = allClaims.iterator();
-		while(claimsItr.hasNext()){
-			Object claimElement = claimsItr.next();
-			try {
-				String str = UpkeepManager.getInstance().get(player + ".Claims." + Integer.parseInt((String) claimElement) + ".location");
-				String[] arg = str.split(",");
-				double[] parsed = new double[3];
-				for (int a = 0; a < 3; a++) {
-					parsed[a] = Double.parseDouble(arg[a+1]);
+		if(claim != null){
+			while(claimsItr.hasNext()){
+				Object claimElement = claimsItr.next();
+				try {
+					String str = UpkeepManager.getInstance().get(player + ".Claims." + Integer.parseInt((String) claimElement) + ".location");
+					if(str != null){
+						String[] arg = str.split(",");
+						double[] parsed = new double[3];
+						for (int a = 0; a < 3; a++) {
+							parsed[a] = Double.parseDouble(arg[a+1]);
+						}
+						Location currentLocation = new Location (Bukkit.getWorld(arg[0]), parsed[0], parsed[1], parsed[2]);
+						if((gp.dataStore.getClaimAt(currentLocation, false,null)) == claim){
+							removeManager(currentLocation, Integer.parseInt((String) claimElement), player);
+							return true;
+						}
+					}
 				}
-				Location currentLocation = new Location (Bukkit.getWorld(arg[0]), parsed[0], parsed[1], parsed[2]);
-				if((gp.dataStore.getClaimAt(currentLocation, false,null)) == claim){
-					removeManager(currentLocation, Integer.parseInt((String) claimElement), player);
-					return true;
-				}	  
-			} catch (Exception e) {
+			 catch (Exception e) {
 				e.printStackTrace();
+			 }
 			}
-	  }
+		}
 	  return false;
   }
   
@@ -114,21 +119,21 @@ public class TownshipListener implements Listener {
 
 		  if (signClaim == null) {
 			  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-              signPlayer.sendMessage(ChatColor.AQUA + "The sign you placed is not inside a claim!");
+              signPlayer.sendMessage(ChatColor.RED + "The sign you placed is not inside a claim!");
               event.setCancelled(true);
               return;
 		  }
 
 		  if (!Township.perms.has(signPlayer, "GPTownship.sell")) {
 			  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-              signPlayer.sendMessage(ChatColor.AQUA + "You do not have permission to sell claims!");
+              signPlayer.sendMessage(ChatColor.RED + "You do not have permission to sell claims!");
               event.setCancelled(true);
               return;
 		  }
 
 		  if (event.getLine(1).isEmpty()) {
 			  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-              signPlayer.sendMessage(ChatColor.AQUA + "You need to enter the price on the second line!");
+              signPlayer.sendMessage(ChatColor.RED + "You need to enter the price on the second line!");
               event.setCancelled(true);
               return;
 		  }
@@ -141,7 +146,7 @@ public class TownshipListener implements Listener {
 		  }
 		  catch (NumberFormatException e) {
 			  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-              signPlayer.sendMessage(ChatColor.AQUA + "You need to enter a valid number on the second line.");
+              signPlayer.sendMessage(ChatColor.RED + "You need to enter a valid number on the second line!");
               event.setCancelled(true);
               return;
 		  }
@@ -157,13 +162,13 @@ public class TownshipListener implements Listener {
 			  } else {
 				  if ((signClaim.isAdminClaim()) && (signPlayer.hasPermission("GPTownship.Adminclaim"))) {
 					  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-                      signPlayer.sendMessage(ChatColor.AQUA + "You cannot sell admin claims! Only can lease admin subdivides.");
+                      signPlayer.sendMessage(ChatColor.RED + "You cannot sell admin claims! You can only lease admin subdivides!");
                       event.setCancelled(true);
                       return;
 				  }
 
                   	  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-                  	  signPlayer.sendMessage(ChatColor.AQUA + "You can only sell claims you own!");
+                  	  signPlayer.sendMessage(ChatColor.RED + "You can only sell claims you own!");
                   	  event.setCancelled(true);
 			  }
 
@@ -181,11 +186,11 @@ public class TownshipListener implements Listener {
 			 	event.setLine(2, "Server");
 			 	event.setLine(3, signCost + " " + Township.econ.currencyNamePlural());
                 signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-                signPlayer.sendMessage(ChatColor.AQUA + "This admin subclaim is now for lease! Price: " + ChatColor.GREEN + signCost + Township.econ.currencyNamePlural());
+                signPlayer.sendMessage(ChatColor.AQUA + "This admin subclaim is now for lease! Price: " + ChatColor.GREEN + signCost + " " + Township.econ.currencyNamePlural());
       
 		 } else {
 			 	signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-                signPlayer.sendMessage(ChatColor.AQUA + "You can only lease subclaims you own!");
+                signPlayer.sendMessage(ChatColor.RED + "You can only lease subclaims you own!");
                 event.setCancelled(true);
                 return;
 		 }
@@ -282,7 +287,7 @@ public class TownshipListener implements Listener {
 
 					  if (signClaim.getOwnerName().equalsIgnoreCase(signPlayer.getName())) {
 						  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-                          signPlayer.sendMessage(ChatColor.AQUA + "You have successfully purchased this claim! Price: " + ChatColor.GREEN + signCost + Township.econ.currencyNamePlural());
+                          signPlayer.sendMessage(ChatColor.AQUA + "You have successfully purchased this claim! Price: " + ChatColor.GREEN + signCost + " " + Township.econ.currencyNamePlural());
 					  } else {
                           signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
                           signPlayer.sendMessage(ChatColor.RED + "ERROR: " + ChatColor.AQUA + "Cannot purchase claim!");
@@ -302,7 +307,7 @@ public class TownshipListener implements Listener {
             
 					  event.getClickedBlock().breakNaturally();
 					  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-					  signPlayer.sendMessage(ChatColor.AQUA + "You have successfully leased this subclaim! Price: " + ChatColor.GREEN + signCost + Township.econ.currencyNamePlural());
+					  signPlayer.sendMessage(ChatColor.AQUA + "You have successfully leased this subclaim! Price: " + ChatColor.GREEN + signCost + " " + Township.econ.currencyNamePlural());
             	
 					  for(int i = 1; i < 100; i = i + 1){
 						  if(UpkeepManager.getInstance().get(signPlayer.getName() + ".Claims." + i + ".owner") == null){

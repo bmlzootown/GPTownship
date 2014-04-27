@@ -13,6 +13,7 @@ permissions:
       GPTownship.buy: true
       GPTownship.Adminclaim: true
       GPTownship.collect: true
+      GPTownship.reload: true
   GPTownship.sell:
     description: Allows player to sell claims and subclaims.
     default: true
@@ -28,6 +29,9 @@ permissions:
   GPTownship.leave:
     description: Allows player to end contract on the claim he is currently standing in.
     default: true
+  GPTownship.reload:
+    description: Allows the player to reload the Township configuration file.
+    default: false
 
 commands:
    townshipcollect:
@@ -39,4 +43,9 @@ commands:
       description: End the contract for the claim you are currently standing in
       usage: /townshipleave
       permission: GPTownship.leave
+      permission-message: You don't have permission to do this.
+   townshipreload:
+      description: Reload the configuration file
+      usage: /townshipreload
+      permission: GPTownship.reload
       permission-message: You don't have permission to do this.

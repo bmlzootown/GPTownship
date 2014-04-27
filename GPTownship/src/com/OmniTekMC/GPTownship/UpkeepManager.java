@@ -64,7 +64,7 @@ public class UpkeepManager {
 					if(TownshipListener.getInstance().subtractFromAccount((String) element, (Double)(get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".price"))) == true) {
 						if(!(Bukkit.getPlayer((String) element) == null)){
 							Bukkit.getPlayer((String) element).sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-							Bukkit.getPlayer((String) element).sendMessage(ChatColor.AQUA + "" + (Double)(get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".price")) + " Has been taken from your account to pay rent.");
+							Bukkit.getPlayer((String) element).sendMessage(ChatColor.AQUA + "" + (Double)(get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".price")) + " Has been taken from your account to pay rent!");
 						}
 						if(!(get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".owner") == "an administrator")){
 							TownshipListener.getInstance().addToAccount((String)(get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".owner")), (Double)(get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".price")));
@@ -79,7 +79,7 @@ public class UpkeepManager {
 						}
 						if(!(Bukkit.getPlayer((String) element) == null)){
 							Bukkit.getPlayer((String) element).sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
-							Bukkit.getPlayer((String) element).sendMessage(ChatColor.RED + "You have been evicted from your claim at " + (get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".location")) + " because you couldn't pay rent" );
+							Bukkit.getPlayer((String) element).sendMessage(ChatColor.RED + "You have been evicted from your claim at " + (get(element + ".Claims." + Integer.parseInt((String) claimElement) + ".location")) + " because you couldn't pay rent!" );
 						}
 						Location location = new Location (Bukkit.getWorld(arg[0]), parsed[0], parsed[1], parsed[2]);
 						TownshipListener.getInstance().removeManager(location, Integer.parseInt((String) claimElement), (String)element);  	
@@ -87,5 +87,6 @@ public class UpkeepManager {
 				} 
 			}
 		}
+		Township.logtoFile("Rent has been collected");
 	}	
 }
