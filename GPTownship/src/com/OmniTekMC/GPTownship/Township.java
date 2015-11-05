@@ -128,9 +128,14 @@ public class Township extends JavaPlugin
 			if(sender instanceof Player){
 				Player player = (Player) sender;
 				if(player.hasPermission("GPTownship.leave")){
-					if(TownshipListener.getInstance().checkManager(this, player.getLocation(), player.getName()) == true){
+					Boolean renting = TownshipListener.getInstance().checkManager(this, player.getLocation(), player.getName());
+					if(renting == true){
 						player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
 						player.sendMessage(ChatColor.AQUA + "You have succefully ended your contract for the claim you are standing in!");
+						return true;
+					} else if (renting == null) {
+						player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
+			            player.sendMessage(ChatColor.RED + "You are not currently standing inside a claim!");
 						return true;
 					} else {
 			            player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
@@ -155,7 +160,8 @@ public class Township extends JavaPlugin
 					// Look for defaults in the jar
 				    InputStream defConfigStream = this.getResource("config.yml");
 				    if (defConfigStream != null) {
-				        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+				        @SuppressWarnings("deprecation")
+						YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 				        townshipConfig.setDefaults(defConfig);
 				    }
 				    player.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");

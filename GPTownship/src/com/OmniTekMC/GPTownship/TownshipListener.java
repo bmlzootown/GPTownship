@@ -49,7 +49,7 @@ public class TownshipListener implements Listener {
 	// Functions to add or subtract money from player account when daily upkeep payments are collected.
 	public boolean subtractFromAccount(String name, Double value){
 		if (Township.econ.has(name, value)) {
-			Township.econ.withdrawPlayer(name, value);
+			Township.econ.withdrawPlayer(name, (value/2.0));
 			return true;
 		} 
 	  return false;	  
@@ -67,9 +67,10 @@ public class TownshipListener implements Listener {
 		upkeepConfig = YamlConfiguration.loadConfiguration(upkeepFile);
 		GriefPrevention gp = GriefPrevention.instance;
 		Claim claim = gp.dataStore.getClaimAt(location, false, null);
-		Set allClaims = upkeepConfig.getConfigurationSection((String) player + ".Claims").getKeys(false);
-		Iterator claimsItr = allClaims.iterator();
 		if(claim != null){
+		  if (!(claim.getOwnerName() == player)) {
+			Set allClaims = upkeepConfig.getConfigurationSection((String) player + ".Claims").getKeys(false);
+			Iterator claimsItr = allClaims.iterator();
 			while(claimsItr.hasNext()){
 				Object claimElement = claimsItr.next();
 				try {
@@ -91,6 +92,8 @@ public class TownshipListener implements Listener {
 				e.printStackTrace();
 			 }
 			}
+		  }
+		 return false;
 		}
 	  return false;
   }
@@ -99,7 +102,8 @@ public class TownshipListener implements Listener {
 	  GriefPrevention gp = GriefPrevention.instance;
       Claim claim = gp.dataStore.getClaimAt(location, false, null);
 	  claim.clearPermissions();
-      claim.clearManagers();
+	  claim.managers.clear();
+      //claim.clearManagers();
       gp.dataStore.saveClaim(claim);
       UpkeepManager.getInstance().set(player + ".Claims." + i + ".owner", null);
       UpkeepManager.getInstance().set(player + ".Claims." + i + ".price", null);
@@ -172,7 +176,7 @@ public class TownshipListener implements Listener {
                   	  event.setCancelled(true);
 			  }
 
-		 } else if ((signPlayer.getName().equalsIgnoreCase(signClaim.parent.getOwnerName())) || (signClaim.isManager(signPlayer.getName()))) {
+		 } else if ((signPlayer.getName().equalsIgnoreCase(signClaim.parent.getOwnerName())) || ( signClaim.managers.contains(signPlayer.getName()))) {
 			 	event.setLine(0, this.plugin.signNameLong);
 			 	event.setLine(1, ChatColor.GREEN + "FOR LEASE");
 			 	event.setLine(2, signPlayer.getName());
@@ -237,7 +241,7 @@ public class TownshipListener implements Listener {
 					  }
 				  
 				  } else {
-					  if ((!sign.getLine(2).equalsIgnoreCase(signClaim.parent.getOwnerName())) && (!signClaim.isManager(sign.getLine(2))) && (!signClaim.parent.isAdminClaim())) {
+					  if ((!sign.getLine(2).equalsIgnoreCase(signClaim.parent.getOwnerName())) && (!signClaim.managers.contains(sign.getLine(2))) && (!signClaim.parent.isAdminClaim())) {
 						  signPlayer.sendMessage(ChatColor.BLUE + "--------=" + ChatColor.GOLD + "Township" + ChatColor.BLUE + "=--------");
 						  signPlayer.sendMessage(ChatColor.AQUA + "The listed player no longer has the rights to lease this claim!");
 						  event.getClickedBlock().setType(Material.AIR);
@@ -278,7 +282,8 @@ public class TownshipListener implements Listener {
 
 				  if (sign.getLine(1).equalsIgnoreCase(ChatColor.GREEN + "FOR SALE") || sign.getLine(1).equalsIgnoreCase("FOR SALE")) {
 					  try {
-						  gp.dataStore.changeClaimOwner(signClaim, signPlayer.getName());
+						  //gp.dataStore.changeClaimOwner(signClaim, signPlayer.getName());
+						  gp.dataStore.changeClaimOwner(signClaim, signPlayer.getUniqueId());
 					  }
 					  catch (Exception e) {
 						  e.printStackTrace();
@@ -300,9 +305,11 @@ public class TownshipListener implements Listener {
 
 				  if (sign.getLine(1).equalsIgnoreCase(ChatColor.GREEN + "FOR LEASE") || sign.getLine(1).equalsIgnoreCase("FOR LEASE")) {
 					  signClaim.clearPermissions();
-					  signClaim.clearManagers();
-					  signClaim.addManager(signPlayer.getName());
-					  signClaim.setPermission(signPlayer.getName(), ClaimPermission.Build);
+					  signClaim.managers.clear();
+					  //signClaim.clearManagers();
+					  signClaim.managers.add(signPlayer.getUniqueId().toString());
+					  //signClaim.addManager(signPlayer.getName());
+					  signClaim.setPermission(signPlayer.getUniqueId().toString(), ClaimPermission.Build);
 					  gp.dataStore.saveClaim(signClaim);
             
 					  event.getClickedBlock().breakNaturally();
